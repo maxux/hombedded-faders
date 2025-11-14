@@ -1,7 +1,7 @@
 EXEC = faders
 
 CFLAGS += -W -Wall -O2 -pipe -ansi -std=gnu99 -g
-LDFLAGS += -ljack -lhiredis -ljansson
+LDFLAGS += -ljack -lhiredis -ljansson -lm
 
 CC = gcc
 

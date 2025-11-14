@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <sys/types.h>
 #include <jack/jack.h>
 #include <jack/midiport.h>
@@ -81,6 +82,16 @@ void internal_jack_shutdown(void *_kntxt) {
     exit(1);
 }
 
+int midival(double x) {
+    if(x < 1.0)
+        return 0;
+
+    if(x > 127.0)
+        return 127;
+
+    return (int) x;
+}
+
 // process fader update json message
 int faders_handle_update(char *source, kntxt_t *kntxt) {
     json_t *root;
@@ -97,14 +108,35 @@ int faders_handle_update(char *source, kntxt_t *kntxt) {
             kntxt->backlog[i] = kntxt->faders[i];
         }
 
+        printf("[+]\n");
+        printf("[+] faders:            | values\n");
+        printf("[+] faders: -----------+-------------------------------------\n");
+        printf("[+] faders:     source | ");
+
         // saving current values received
         for(size_t i = 0; i < json_array_size(root); i++) {
             json_t *data = json_array_get(root, i);
 
             if(json_is_integer(data)) {
-                kntxt->faders[i] = json_integer_value(data) / 2;
+                // saving fader value (0-255) as midi note level (0-127)
+                // kntxt->faders[i] = json_integer_value(data) / 2;
+                int v = json_integer_value(data);
+                printf("%3d ", v);
+
+                // apply custom correction to fader value
+                double x = 3.1 * sqrt(7.0 * v);
+
+                kntxt->faders[i] = midival(x);
             }
         }
+
+        printf("\n");
+        printf("[+] faders:  corrected | ");
+        for(size_t i = 0; i < json_array_size(root); i++) {
+            printf("%3d ", kntxt->faders[i]);
+        }
+
+        printf("\n[+]\n");
     }
 
     int updated = 0;
