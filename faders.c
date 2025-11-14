@@ -21,6 +21,7 @@ typedef struct kntxt_t {
     jack_status_t status;
     jack_port_t *output;
 
+    // FIXME: proper handling of concurrency
     uint8_t sync_busy;
     uint8_t backlog[8];
     uint8_t faders[8];
