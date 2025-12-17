@@ -24,9 +24,9 @@ typedef struct kntxt_t {
 
     // FIXME: proper handling of concurrency
     uint8_t sync_busy;
-    uint8_t backlog[8];
-    uint8_t faders[8];
-    uint8_t sync_states[8];
+    uint8_t backlog[16];
+    uint8_t faders[16];
+    uint8_t sync_states[16];
     uint8_t sync_update;
 
     redisContext *redis;
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
     freeReplyObject(reply);
 
     // reply = redisCommand(kntxt.redis, "PSUBSCRIBE sensors-broadcast-faders-*");
-    reply = redisCommand(kntxt.redis, "SUBSCRIBE sensors-broadcast-faders-interface-1");
+    reply = redisCommand(kntxt.redis, "SUBSCRIBE sensors-broadcast-faders-interface-100");
     freeReplyObject(reply);
 
     while(redisGetReply(kntxt.redis, (void *) &reply) == REDIS_OK) {
